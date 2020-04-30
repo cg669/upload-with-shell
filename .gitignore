@@ -6,3 +6,6 @@ bin
 *.zip
 uws-config.js
 yarn-error.log
+uws-dist
+dist
+dist.zip

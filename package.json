@@ -6,7 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "tslint -c tslint.json -p .",
     "lint:fix": "tslint -c tslint.json -p . --fix",
-    "build": "tsc -p ./tsconfig.json --inlineSourceMap false",
+    "build": "tsc -p ./tsconfig.prod.json --inlineSourceMap false",
     "dev": "tsc -w -p ./tsconfig.json"
   },
   "bin": {
@@ -41,6 +41,7 @@
     "ts-node": "^8.9.1",
     "tslint": "^6.1.2",
     "tslint-config-standard": "^9.0.0",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3",
+    "uglify-js": "^3.9.1"
   }
 }
