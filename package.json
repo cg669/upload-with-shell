@@ -1,0 +1,46 @@
+{
+  "name": "upload-with-ssh",
+  "version": "1.0.0",
+  "description": "upload local direcroties with ssh ",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "tslint -c tslint.json -p .",
+    "lint:fix": "tslint -c tslint.json -p . --fix",
+    "build": "tsc -p ./tsconfig.json --inlineSourceMap false",
+    "dev": "tsc -w -p ./tsconfig.json"
+  },
+  "bin": {
+    "upload-with-ssh": "bin/init.js",
+    "uws": "bin/init.js"
+  },
+  "keywords": [
+    "node",
+    "ssh"
+  ],
+  "author": "cg669",
+  "license": "MIT",
+  "dependencies": {
+    "archiver": "^4.0.1",
+    "chalk": "^4.0.0",
+    "commander": "^5.1.0",
+    "inquirer": "^7.1.0",
+    "optimist": "^0.6.1",
+    "ora": "^4.0.4",
+    "shelljs": "^0.8.4",
+    "ssh2": "^0.8.9"
+  },
+  "devDependencies": {
+    "@types/commander": "^2.12.2",
+    "@types/inquirer": "^6.5.0",
+    "@types/minimist": "^1.2.0",
+    "@types/node": "^13.13.4",
+    "@types/optimist": "^0.0.29",
+    "@types/shelljs": "^0.8.7",
+    "pre-commit": "^1.2.2",
+    "spinner": "^0.3.4",
+    "ts-node": "^8.9.1",
+    "tslint": "^6.1.2",
+    "tslint-config-standard": "^9.0.0",
+    "typescript": "^3.8.3"
+  }
+}
