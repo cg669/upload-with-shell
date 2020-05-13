@@ -36,6 +36,7 @@ function Shell (conn: any) {
     stream.on('close', function () {
       console.log(chalk.green('上传服务器成功'))
       conn.end()
+      // console.log(params.file,'params.file')
       if (params.file) {
         fs.unlinkSync(params.file)
       }
@@ -118,7 +119,7 @@ export default function upload (zipName: string, options: OptionsB,cb?: any) {
   try {
 
     let configSrc = join('./uws-config.js')
-    console.log(configSrc)
+    // console.log(configSrc)
       // tslint:disable-next-line: deprecation
     fs.exists(configSrc, function (exists) {
       params = {

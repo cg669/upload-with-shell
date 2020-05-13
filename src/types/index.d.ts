@@ -1,3 +1,5 @@
 declare module 'spinner'
 declare module 'archiver'
 declare module 'ssh2'
+declare module 'chalk'
+declare module 'ora'

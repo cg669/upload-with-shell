@@ -91,7 +91,7 @@ program
 .description(chalk.green('压缩然后上传'))
 .option('-n,--name <name>','压缩后的文件名')
 .option('-o,--output <dir>','上传的地址')
-.action((path: string, cmd: Command) => {
+.action((path: string = 'dist', cmd: Command) => {
   const options = cleanArgs(cmd)
 
   if (minimist(process.argv.slice(3))._.length > 1) {
@@ -103,8 +103,9 @@ program
     console.log(chalk.yellow('\n 提示: 如果不填写上传到的路径，默认为~'))
   }
   if (!options.name) {
-    console.log(chalk.yellow('\n 提示: 如果不填写输出文件名，默认为输入dist.zip'))
+    console.log(chalk.yellow('\n 提示: 如果不填写压缩后的文件名，默认为输入dist.zip'))
   }
+
   Zip(path,options,() => Upload(options.name || 'dist.zip',options))
 })
 
