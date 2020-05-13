@@ -7,7 +7,8 @@
     "lint": "tslint -c tslint.json -p .",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "build": "tsc -p ./tsconfig.prod.json --inlineSourceMap false",
-    "dev": "tsc -w -p ./tsconfig.json"
+    "dev": "tsc -w -p ./tsconfig.json",
+    "prepare": "npm run build"
   },
   "bin": {
     "upload-with-ssh": "bin/init.js",
@@ -16,6 +17,9 @@
   "keywords": [
     "node",
     "ssh"
+  ],
+  "files": [
+    "bin"
   ],
   "author": "cg669",
   "license": "MIT",
