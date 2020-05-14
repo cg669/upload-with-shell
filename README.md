@@ -28,3 +28,16 @@ upload-with-ssh一下简称uws是最简单的命令帮组你日常压缩，复�
 $ npm i -g upload-with-ssh
 $ uws -h
 ```
+
+```bash
+$ 配置文件，可以在根目录添加uws-config.js文件,代码块如下
+```
+```
+module.exports = function () {
+    return {
+        host:'10.1**.*.*',
+        username: '2222',
+        password: '1111@123'
+    }
+}
+```
