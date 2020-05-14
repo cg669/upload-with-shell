@@ -68,7 +68,7 @@ program
 //  上传命令
 program
 .command('upload [name]')
-.description(chalk.green('上传的文件名'))
+.description(chalk.green('上传的文件'))
 .option('-o,--output <dir>','上传的地址')
 .action((name: string, cmd: Command) => {
   const options = cleanArgs(cmd)

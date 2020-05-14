@@ -2,22 +2,34 @@
 import fs from 'fs'
 import chalk from 'chalk'
 import { Client } from 'ssh2'
-import readline from 'readline'
+import readlineSync from 'readline-sync'
 import { join } from '../utils'
 
-import { IUser } from '../interface/user'
-import { IUploadParams,OptionsB } from '../interface/options'
+import { IUser,IKey } from '../interface/user'
+import { IUploadParams, OptionsB } from '../interface/options'
 
-// console.log(user);
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
+// import executeSequentially from '../utils/executeSequentially'
+
+let isHide = true
+
+const questionMap = Object.freeze({
+  host: '输入服务器地址:',
+  username: '请输入服务账户:',
+  password: '请输入账户密码:',
+  serviceUrl: '请输入发送到的服务器路径:'
+
 })
+// // console.log(user);
+// const rl = readline.createInterface({
+//   input: process.stdin,
+//   output: process.stdout
+// })
 
 let user: IUser = {
-  host: '10.128.**.**',
+  host: '',
   username: '',
-  password: ''
+  password: '',
+  serviceUrl: ''
 }
 
 let params: IUploadParams = {
@@ -31,28 +43,36 @@ let params: IUploadParams = {
  * @constructor
  */
 function Shell (conn: any) {
-  conn.shell(function (err: any, stream: any) {
+  conn.shell((err: any, stream: any) => {
     if (err) throw err
-    stream.on('close', function () {
-      console.log(chalk.green('上传服务器成功'))
-      conn.end()
-      // console.log(params.file,'params.file')
-      if (params.file) {
-        fs.unlinkSync(params.file)
-      }
-      process.exit(0)
-    }).on('data', function (data: string) {
-      console.log(chalk.yellow(`正在上传：${data}`))
-    }).stderr.on('data', function (data: string) {
-      console.log(chalk.red(`上传失败：${data}`))
-    })
+    stream
+      .on('close', () => {
+        console.log(chalk.green('上传服务器成功'))
+        conn.end()
+        if (params.file) {
+          fs.unlinkSync(params.file)
+        }
+        process.exit(0)
+      })
+      .on('data', (data: string) => {
+        console.log(chalk.yellow(`${data}`))
+
+      })
+      .stderr.on('data', (data: string) => console.log(chalk.red(`上传失败：${data}`)))
+
+    let dirName = params.file.substring(0,params.file.lastIndexOf('.'))
     const uploadShellList = [
       `cd ~\n`,
-      `rm -rf ${params.file.substring(0,params.file.lastIndexOf('.'))}\n`,
+      `rm -rf ${dirName}\n`,
       `unzip ${params.file}\n`,
       `rm -rf ${params.file}\n`,
+      // `cd ${user.serviceUrl}\n`,
+      // `sudo rm -rf ${dirName}\n`,
+      // `echo ${user.password}\n`,
+      // `mv ~/${dirName} .\n`,
       `exit\n`
     ]
+
     stream.end(uploadShellList.join(''))
   })
 }
@@ -90,28 +110,69 @@ function Publish (conn: any, user: IUser) {
     UploadFile(conn)
   }).connect(user)
 }
+
+function Question (key: IKey): any {
+  const question = key === 'host' ? questionMap[key] : `发布至服务器 ${user.host} ${questionMap[key]}`
+  return new Promise((resolve, reject) => {
+    let word = readlineSync.question(chalk.green(question), {
+      hideEchoBack: isHide,
+      mask: chalk.magenta('\u2665')
+    })
+    if (word) {
+      user[key] = word.replace(/\r\n$/, '')
+      resolve()
+    } else {
+      console.log(chalk.yellow('请输入内容'))
+      Question(key)
+    }
+  })
+}
+
+function executeSequentially (promiseFactories: IKey[]) {
+  let result = Promise.resolve()
+  promiseFactories.forEach(key => Question(key))
+  return result
+}
+
+function changeIsHideWord (fn: Function) {
+  let answer = readlineSync.question('是否隐藏输入内容? ', {
+    trueValue: ['yes', 'yeah', 'yep'],
+    falseValue: ['no', 'nah', 'nope']
+  })
+  if (answer === true) {
+    console.log(chalk.green('当前输入为明文'))
+    isHide = answer
+    fn()
+  } else if (answer === false) {
+    console.log(chalk.green('当前输入为暗文'))
+    isHide = answer
+    fn()
+  } else {
+    console.log(chalk.yellow(`${answer}是啥意思？你可以选择yes or no`))
+    changeIsHideWord(fn)
+  }
+}
+
 function Ready () {
   let conn = new Client()
-  if (user.password && user.host && user.username) {
+
+  //  过滤出来没有值的数据
+  const emptyKeys: Array<IKey> = []
+  //  filter的时候会有类型错误
+  Object.keys(user).forEach((key: string) => {
+    //  需要投射下类型
+    let myKey: IKey = key as IKey
+    if (!user[myKey]) {
+      emptyKeys.push(myKey)
+    }
+  })
+
+  console.log(emptyKeys)
+  if (emptyKeys.length === 0) {
+    //  都有值了
     Publish(conn, user)
   } else {
-    rl.question(chalk.green(`输入服务器地址:`), host => {
-      if (host) {
-        user.host = host
-        rl.question(chalk.green(`发布至服务器 ${user.host} 请输入服务账户:`), userName => {
-          if (userName) {
-            user.username = userName.replace(/\r\n$/, '')
-            rl.question(chalk.green(`发布至服务器 ${user.host} 请输入服务器密码:`), password => {
-              if (password) {
-                user.password = password.replace(/\r\n$/, '')
-                Publish(conn, user)
-              }
-            })
-          }
-        })
-      }
-    })
-
+    changeIsHideWord(() => executeSequentially(emptyKeys).then(() => Publish(conn, user)))
   }
 }
 
@@ -131,7 +192,7 @@ export default function upload (zipName: string, options: OptionsB,cb?: any) {
         user.host = myUser.host
         user.username = myUser.username
         user.password = myUser.password
-
+        user.serviceUrl = myUser.serviceUrl
       }
       params.target = `/home/${ user.username }/${zipName}`
       Ready()

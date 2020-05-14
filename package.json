@@ -31,7 +31,9 @@
     "optimist": "^0.6.1",
     "ora": "^4.0.4",
     "shelljs": "^0.8.4",
-    "ssh2": "^0.8.9"
+    "ssh2": "^0.8.9",
+    "readline-sync": "^1.4.10",
+    "spinner": "^0.3.4"
   },
   "devDependencies": {
     "@types/commander": "^2.12.2",
@@ -41,7 +43,6 @@
     "@types/optimist": "^0.0.29",
     "@types/shelljs": "^0.8.7",
     "pre-commit": "^1.2.2",
-    "spinner": "^0.3.4",
     "ts-node": "^8.9.1",
     "tslint": "^6.1.2",
     "tslint-config-standard": "^9.0.0",
