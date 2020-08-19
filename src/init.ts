@@ -32,8 +32,14 @@ program
     .alias('c')
     .description(chalk.green('将打包后的文件夹复制到一个新的文件夹里'))
     .option('-o,--output <dir>','文件存放目录')
-    .action((name: string, cmd: Command) => {
+    .action((dir: string, cmd: Command) => {
       const options = cleanArgs(cmd)
+
+      if (!dir) {
+        console.log('\n')
+        console.log(chalk.yellow('提示: 请输入要复制的文件或者文件夹名称，比如 c yourDir'))
+        process.exit(0)
+      }
 
       if (minimist(process.argv.slice(3))._.length > 1) {
         console.log(chalk.yellow('\n 提示: 是不是少加了-o哦'))
