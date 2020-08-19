@@ -36,6 +36,18 @@ let params: IUploadParams = {
   file: ``,
   target: ``
 }
+
+function Done (err: string, file: string) {
+  if (err) {
+    console.log(chalk.red(err))
+    process.exit(0)
+  }
+  console.log(chalk.green('上传服务器成功'))
+  if (file) {
+    // fs.unlinkSync(file)
+  }
+  process.exit(0)
+}
 /**
  * 上传完成后服务器需要执行的内容
  * 删除本地压缩文件
@@ -56,24 +68,22 @@ function Shell (conn: any) {
       })
       .on('data', (data: string) => {
         console.log(chalk.yellow(`${data}`))
-
       })
       .stderr.on('data', (data: string) => console.log(chalk.red(`上传失败：${data}`)))
 
     let dirName = params.file.substring(0,params.file.lastIndexOf('.'))
     const uploadShellList = [
-      `cd ~\n`,
-      `rm -rf ${dirName}\n`,
-      `unzip ${params.file}\n`,
-      `rm -rf ${params.file}\n`,
-      // `cd ${user.serviceUrl}\n`,
-      // `sudo rm -rf ${dirName}\n`,
-      // `echo ${user.password}\n`,
-      // `mv ~/${dirName} .\n`,
-      `exit\n`
+      `cd ~`,
+      `rm -rf ${dirName}`,
+      `unzip ${params.file}`,
+      `rm -rf ${params.file}`,
+      // `cd ${user.serviceUrl}`,
+      // `sudo rm -rf ${dirName}`,
+      // `sudo mv ~/${dirName} .`,
+      `exit`
     ]
 
-    stream.end(uploadShellList.join(''))
+    stream.end(uploadShellList.join('\r\n'))
   })
 }
 /**
@@ -180,22 +190,28 @@ export default function upload (zipName: string, options: OptionsB,cb?: any) {
   try {
 
     let configSrc = join('./uws-config.js')
-    // console.log(configSrc)
+    fs.stat(zipName, (err, stat) => {
+      if (err) {
+        console.log('\n')
+        console.log(chalk.red('目标路径不存在，请检查是否输入地址有误'))
+        process.exit(0)
+      }
       // tslint:disable-next-line: deprecation
-    fs.exists(configSrc, function (exists) {
-      params = {
-        file: zipName,
-        target: `${ options.output}/${zipName}`
-      }
-      if (exists) {
-        const myUser = require(configSrc)()
-        user.host = myUser.host
-        user.username = myUser.username
-        user.password = myUser.password
-        user.serviceUrl = myUser.serviceUrl
-      }
-      params.target = `/home/${ user.username }/${zipName}`
-      Ready()
+      fs.exists(configSrc, function (exists) {
+        params = {
+          file: zipName,
+          target: `${options.upload}/${zipName}`
+        }
+        if (exists) {
+          const myUser = require(configSrc)()
+          user.host = myUser.host
+          user.username = myUser.username
+          user.password = myUser.password
+          user.serviceUrl = myUser.serviceUrl
+        }
+        params.target = `/home/${user.username}/${zipName}`
+        Ready()
+      })
     })
   } catch (err) {
     console.log(err)

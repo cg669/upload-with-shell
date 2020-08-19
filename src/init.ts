@@ -29,6 +29,7 @@ program
 
 program
     .command('copy [dir]')
+    .alias('c')
     .description(chalk.green('将打包后的文件夹复制到一个新的文件夹里'))
     .option('-o,--output <dir>','文件存放目录')
     .action((name: string, cmd: Command) => {
@@ -49,65 +50,86 @@ program
 program
     .command('zip [dir]')
     .description(chalk.green('压缩文件'))
-    .option('-n,--name <dir>','压缩后的文件名')
-    .action((name: string, cmd: Command) => {
+    .alias('z')
+    .option('-o,--output <dir>','压缩后的文件名')
+    .action((dir: string, cmd: Command) => {
       const options = cleanArgs(cmd)
 
-      if (minimist(process.argv.slice(3))._.length > 1) {
-        console.log(chalk.yellow('\n 提示: 是不是少加了-o哦'))
+      if (!dir) {
+        console.log('\n')
+        console.log(chalk.yellow('提示: 请输入要压缩的文件或者文件夹名称，比如 z yourDir'))
         process.exit(0)
       }
 
-      if (!options.name) {
-        console.log(chalk.yellow('\n 提示: 如果不填写输出文件名，默认为输入dist.zip'))
+      if (minimist(process.argv.slice(3))._.length > 1) {
+        console.log('\n')
+        console.log(chalk.yellow('提示: 是不是少加了-o哦'))
+        process.exit(0)
       }
 
-      Zip(name,options)
+      if (!options.output) {
+        console.log('\n')
+        console.log(chalk.yellow('提示: 如果不填写输出文件名，默认为输入dist.zip,请使用-o name来设置输出文件名'))
+      }
+
+      Zip(dir,options)
     })
 
 //  上传命令
 program
-.command('upload [name]')
-.description(chalk.green('上传的文件'))
-.option('-o,--output <dir>','上传的地址')
-.action((name: string, cmd: Command) => {
-  const options = cleanArgs(cmd)
+  .command('upload [path]')
+  .alias('u')
+  .description(chalk.green('上传的文件'))
+  .option('-o,--output <dir>', '上传的地址')
+  .action((path: string, cmd: Command) => {
+    const options = cleanArgs(cmd)
 
-  if (minimist(process.argv.slice(3))._.length > 1) {
-    console.log(chalk.yellow('\n 提示: 是不是少加了-o哦'))
-    process.exit(0)
-  }
+    if (!path) {
+      console.log('\n')
+      console.log(chalk.yellow('提示: 请输入要上传的文件或者文件夹名称，比如 u yourDir'))
+      process.exit(0)
+    }
 
-  if (!options.output) {
-    console.log(chalk.yellow('\n 提示: 如果不填写上传到的路径，默认为~'))
-  }
+    if (minimist(process.argv.slice(3))._.length > 1) {
+      console.log('\n')
+      console.log(chalk.yellow('提示: 是不是少加了-o哦'))
+      process.exit(0)
+    }
 
-  Upload(name,options)
-})
+    if (!options.output) {
+      console.log('\n')
+      console.log(chalk.yellow('提示: 如果不填写上传到的路径，默认为~'))
+    }
+
+    Upload(path,options)
+  })
 
 //  压缩并且上传
 program
-.command('zu [dir]')
-.description(chalk.green('压缩然后上传'))
-.option('-n,--name <name>','压缩后的文件名')
-.option('-o,--output <dir>','上传的地址')
-.action((path: string = 'dist', cmd: Command) => {
-  const options = cleanArgs(cmd)
+  .command('zu [dir]')
+  .description(chalk.green('压缩然后上传'))
+  .option('-o,--output <dir>','压缩后的文件名')
+  .option('-u,--upload <dir>','上传的地址')
+  .action((path: string = 'dist', cmd: Command) => {
+    const options = cleanArgs(cmd)
 
-  if (minimist(process.argv.slice(3))._.length > 1) {
-    console.log(chalk.yellow('\n 提示: 是不是少加了-o哦'))
-    process.exit(0)
-  }
+    if (minimist(process.argv.slice(3))._.length > 1) {
+      console.log('\n')
+      console.log(chalk.yellow('提示: 是不是少加了-o哦'))
+      process.exit(0)
+    }
 
-  if (!options.output) {
-    console.log(chalk.yellow('\n 提示: 如果不填写上传到的路径，默认为~'))
-  }
-  if (!options.name) {
-    console.log(chalk.yellow('\n 提示: 如果不填写压缩后的文件名，默认为输入dist.zip'))
-  }
+    if (!options.output) {
+      console.log('\n')
+      console.log(chalk.yellow('提示: 如果不填写上传到的路径，默认为~'))
+    }
+    if (!options.output) {
+      console.log('\n')
+      console.log(chalk.yellow('提示: 如果不填写压缩后的文件名，默认为输入dist.zip'))
+    }
 
-  Zip(path,options,() => Upload(options.name || 'dist.zip',options))
-})
+    Zip(path,options,() => Upload(options.output || 'dist.zip',options))
+  })
 
 // //  生成静态页面命令
 // program

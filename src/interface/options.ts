@@ -1,9 +1,9 @@
 export interface OptionsA {
-  name?: string
+  output?: string
 }
 export interface OptionsB {
-  output: string,
-  name?: string
+  output?: string,
+  upload?: string
 }
 
 export interface IUploadParams {
