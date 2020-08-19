@@ -49,7 +49,7 @@ program
         console.log(chalk.yellow('\n 提示: 请配置输出文件夹地址'))
         process.exit(0)
       }
-      Copy(name,options)
+      Copy(dir,options)
     })
 
 //  压缩命令

@@ -2,7 +2,7 @@ export interface OptionsA {
   output?: string
 }
 export interface OptionsB {
-  output?: string,
+  output: string,
   upload?: string
 }
 
